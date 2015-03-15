@@ -1,11 +1,24 @@
-infix operator |>  {
+// MARK: - Operator
+
+
+infix operator |> {
     associativity left
     precedence 95
 }
 
+
+/// Chain free functions together.
+/// Example:
+///     [0, 1, 2, 3, 4]
+///         |> filter { $0 > 1 }
+///         |> println
 func |><I, O>(input: I, transform: I -> O) -> O {
     return transform(input)
 }
+
+
+
+// MARK: - Functions
 
 
 /// Return the result of advancing start by `n` positions, or until it
