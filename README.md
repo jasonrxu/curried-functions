@@ -1,4 +1,7 @@
 # curried-functions
+
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
 Curried version of all free functions in Swift standard library.
 Enable you to chain free functions in Swift standard library together using `|>` operator.
 
