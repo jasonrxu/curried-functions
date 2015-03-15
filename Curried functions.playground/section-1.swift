@@ -137,13 +137,6 @@ func map<T, U>(f: (T) -> U)(x: T?) -> U? {
 
 /// Return an `Array` containing the results of mapping `transform`
 /// over `source`.
-func map<C : CollectionType, T>(transform: (C.Generator.Element) -> T)(source: C) -> [T] {
-    return map(source, transform)
-}
-
-
-/// Return an `Array` containing the results of mapping `transform`
-/// over `source`.
 func map<S : SequenceType, T>(transform: (S.Generator.Element) -> T)(source: S) -> [T] {
     return map(source, transform)
 }
