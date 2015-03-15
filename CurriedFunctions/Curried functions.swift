@@ -8,6 +8,15 @@ func |><I, O>(input: I, transform: I -> O) -> O {
 }
 
 
+/// Return the result of advancing start by `n` positions, or until it
+/// equals `end`.  If `T` models `RandomAccessIndexType`, executes in
+/// O(1).  Otherwise, executes in O(`abs(n)`).  If `T` does not model
+/// `BidirectionalIndexType`, requires that `n` is non-negative.
+func advance<T : ForwardIndexType>(n: T.Distance, end: T)(start: T) -> T {
+    return advance(start, n, end)
+}
+
+
 /// Return the result of advancing `start` by `n` positions.  If `T`
 /// models `RandomAccessIndexType`, executes in O(1).  Otherwise,
 /// executes in O(`abs(n)`).  If `T` does not model
@@ -19,24 +28,15 @@ func advance<T: ForwardIndexType>(n: T.Distance)(start: T) -> T {
 }
 
 
-/// Return the result of advancing start by `n` positions, or until it
-/// equals `end`.  If `T` models `RandomAccessIndexType`, executes in
-/// O(1).  Otherwise, executes in O(`abs(n)`).  If `T` does not model
-/// `BidirectionalIndexType`, requires that `n` is non-negative.
-func advance<T : ForwardIndexType>(n: T.Distance, end: T)(start: T) -> T {
-    return advance(start, n, end)
+/// Return `true` iff an element in `seq` satisfies `predicate`.
+func contains<S : SequenceType, L : BooleanType>(@noescape predicate: (S.Generator.Element) -> L)(seq: S) -> Bool {
+    return contains(seq, predicate)
 }
 
 
 /// Return `true` iff `x` is in `seq`.
 func contains<S : SequenceType where S.Generator.Element : Equatable>(x: S.Generator.Element)(seq: S) -> Bool {
     return contains(seq, x)
-}
-
-
-/// Return `true` iff an element in `seq` satisfies `predicate`.
-func contains<S : SequenceType, L : BooleanType>(predicate: (S.Generator.Element) -> L)(seq: S) -> Bool {
-    return contains(seq, predicate)
 }
 
 
@@ -53,19 +53,19 @@ func distance<T : ForwardIndexType>(end: T)(start: T) -> T.Distance {
 }
 
 
-/// Return `true` iff `a1` and `a2` contain the same elements in the
-/// same order.
-func equal<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element, S1.Generator.Element : Equatable>(a2: S2)(a1: S1) -> Bool {
-    return equal(a1, a2)
-}
-
-
 /// Return true iff `a1` and `a2` contain equivalent elements, using
 /// `isEquivalent` as the equivalence test.  Requires: `isEquivalent`
 /// is an `equivalence relation
 /// <http://en.wikipedia.org/wiki/Equivalence_relation>`_
-func equal<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element>(a2: S2, isEquivalent: (S1.Generator.Element, S2.Generator.Element) -> Bool)(a1: S1) -> Bool {
+func equal<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element>(a2: S2, @noescape isEquivalent: (S1.Generator.Element, S2.Generator.Element) -> Bool)(a1: S1) -> Bool {
     return equal(a1, a2, isEquivalent)
+}
+
+
+/// Return `true` iff `a1` and `a2` contain the same elements in the
+/// same order.
+func equal<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element, S1.Generator.Element : Equatable>(a2: S2)(a1: S1) -> Bool {
+    return equal(a1, a2)
 }
 
 
@@ -92,6 +92,19 @@ func find<C : CollectionType where C.Generator.Element : Equatable>(value: C.Gen
 }
 
 
+/// Return an `Array` containing the results of mapping `transform`
+/// over `source` and flattening the result.
+func flatMap<S : SequenceType, T>(@noescape transform: (S.Generator.Element) -> [T])(source: S) -> [T] {
+    return flatMap(source, transform)
+}
+
+
+/// Returns `f(self)!` iff `self` and `f(self)` are not nil.
+func flatMap<T, U>(@noescape f: (T) -> U?)(x: T?) -> U? {
+    return flatMap(x, f)
+}
+
+
 /// Insert `newElement` into `x` at index `i`.
 ///
 /// Invalidates all indices with respect to `x`.
@@ -115,17 +128,21 @@ func join<C : ExtensibleCollectionType, S : SequenceType where C == S.Generator.
 }
 
 
-/// Return true iff `a1` precedes `a2` in a lexicographical ("dictionary")
-/// ordering, using `less` as the comparison between elements.
-func lexicographicalCompare<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element>(a2: S2, less: (S1.Generator.Element, S1.Generator.Element) -> Bool)(a1: S1) -> Bool {
-    return lexicographicalCompare(a1, a2, less)
-}
-
-
 /// Return true iff a1 precedes a2 in a lexicographical ("dictionary")
 /// ordering, using "<" as the comparison between elements.
 func lexicographicalCompare<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element, S1.Generator.Element : Comparable>(a2: S2)(a1: S1) -> Bool {
     return lexicographicalCompare(a1, a2)
+}
+
+
+/// Return true iff `a1` precedes `a2` in a lexicographical ("dictionary")
+/// ordering, using `isOrderedBefore` as the comparison between elements.
+///
+/// Requires: isOrderedBefore` is a `strict weak ordering
+/// <http://en.wikipedia.org/wiki/Strict_weak_order#Strict_weak_orderings>`__
+/// over the elements of `a1` and `a2`.
+func lexicographicalCompare<S1 : SequenceType, S2 : SequenceType where S1.Generator.Element == S2.Generator.Element>(a2: S2, @noescape isOrderedBefore less: (S1.Generator.Element, S1.Generator.Element) -> Bool)(a1: S1) -> Bool {
+    return lexicographicalCompare(a1, a2, isOrderedBefore: less)
 }
 
 
@@ -223,7 +240,7 @@ func prefix<S : Sliceable>(maxLength: Int)(s: S) -> S.SubSlice {
 ///
 /// Do not overload this function for your type.  Instead, adopt one of the
 /// protocols mentioned above.
-func print<T, TargetStream : OutputStreamType>(inout target: TargetStream)(object: T) {
+@inline(never) func print<T, TargetStream : OutputStreamType>(inout target: TargetStream)(object: T) {
     print(object, &target)
 }
 
@@ -237,7 +254,7 @@ func print<T, TargetStream : OutputStreamType>(inout target: TargetStream)(objec
 ///
 /// Do not overload this function for your type.  Instead, adopt one of the
 /// protocols mentioned above.
-func println<T, TargetStream : OutputStreamType>(inout target: TargetStream)(object: T) {
+@inline(never) func println<T, TargetStream : OutputStreamType>(inout target: TargetStream)(object: T) {
     return println(object, &target)
 }
 
@@ -245,7 +262,7 @@ func println<T, TargetStream : OutputStreamType>(inout target: TargetStream)(obj
 /// Return the result of repeatedly calling `combine` with an
 /// accumulated value initialized to `initial` and each element of
 /// `sequence`, in turn.
-func reduce<S : SequenceType, U>(initial: U, combine: (U, S.Generator.Element) -> U)(sequence: S) -> U {
+func reduce<S : SequenceType, U>(initial: U, @noescape combine: (U, S.Generator.Element) -> U)(sequence: S) -> U {
     return reduce(sequence, initial, combine)
 }
 
@@ -350,18 +367,19 @@ func splice<C : RangeReplaceableCollectionType, S : CollectionType where C.Gener
 //func split<S : Sliceable, R : BooleanType>(elements: S, isSeparator: (S.Generator.Element) -> R, maxSplit: Int = default, allowEmptySlices: Bool = default) -> [S.SubSlice]
 
 
-/// Return true iff `s` begins with elements equivalent to those of
-/// `prefix`, using `isEquivalent` as the equivalence test.  Requires:
-/// `isEquivalent` is an `equivalence relation
-/// <http://en.wikipedia.org/wiki/Equivalence_relation>`_
-func startsWith<S0 : SequenceType, S1 : SequenceType where S0.Generator.Element == S1.Generator.Element>(prefix: S1, isEquivalent: (S0.Generator.Element, S0.Generator.Element) -> Bool)(s: S0) -> Bool {
-    return startsWith(s, prefix, isEquivalent)
-}
-
-
 /// Return true iff the the initial elements of `s` are equal to `prefix`.
 func startsWith<S0 : SequenceType, S1 : SequenceType where S0.Generator.Element == S1.Generator.Element, S0.Generator.Element : Equatable>(prefix: S1)(s: S0) -> Bool {
     return startsWith(s, prefix)
+}
+
+
+/// Return true iff `s` begins with elements equivalent to those of
+/// `prefix`, using `isEquivalent` as the equivalence test.
+///
+/// Requires: `isEquivalent` is an `equivalence relation
+/// <http://en.wikipedia.org/wiki/Equivalence_relation>`_
+func startsWith<S0 : SequenceType, S1 : SequenceType where S0.Generator.Element == S1.Generator.Element>(prefix: S1, @noescape isEquivalent: (S0.Generator.Element, S1.Generator.Element) -> Bool)(s: S0) -> Bool {
+    return startsWith(s, prefix, isEquivalent)
 }
 
 
@@ -417,14 +435,14 @@ func unsafeBitCast<T, U>(type: U.Type)(x: T) -> U {
 
 /// Evaluate `f()` and return its result, ensuring that `x` is not
 /// destroyed before f returns.
-func withExtendedLifetime<T, Result>(f: () -> Result)(x: T) -> Result {
+func withExtendedLifetime<T, Result>(@noescape f: () -> Result)(x: T) -> Result {
     return withExtendedLifetime(x, f)
 }
 
 
 /// Evaluate `f(x)` and return its result, ensuring that `x` is not
 /// destroyed before f returns.
-func withExtendedLifetime<T, Result>(f: (T) -> Result)(x: T) -> Result {
+func withExtendedLifetime<T, Result>(@noescape f: (T) -> Result)(x: T) -> Result {
     return withExtendedLifetime(x, f)
 }
 
@@ -432,20 +450,20 @@ func withExtendedLifetime<T, Result>(f: (T) -> Result)(x: T) -> Result {
 /// Invokes `body` with an `UnsafeMutablePointer` to `arg` and returns the
 /// result. Useful for calling Objective-C APIs that take "in/out"
 /// parameters (and default-constructible "out" parameters) by pointer
-func withUnsafeMutablePointer<T, Result>(body: (UnsafeMutablePointer<T>) -> Result)(inout arg: T) -> Result {
+func withUnsafeMutablePointer<T, Result>(@noescape body: (UnsafeMutablePointer<T>) -> Result)(inout arg: T) -> Result {
     return withUnsafeMutablePointer(&arg, body)
 }
 
 
 /// Like `withUnsafeMutablePointer`, but passes pointers to `arg0`, `arg1`,
 /// and `arg2`.
-func withUnsafeMutablePointers<A0, A1, A2, Result>(inout arg1: A1, inout arg2: A2, body: (UnsafeMutablePointer<A0>, UnsafeMutablePointer<A1>, UnsafeMutablePointer<A2>) -> Result)(inout arg0: A0) -> Result {
+func withUnsafeMutablePointers<A0, A1, A2, Result>(inout arg1: A1, inout arg2: A2, @noescape body: (UnsafeMutablePointer<A0>, UnsafeMutablePointer<A1>, UnsafeMutablePointer<A2>) -> Result)(inout arg0: A0) -> Result {
     return withUnsafeMutablePointers(&arg0, &arg1, &arg2, body)
 }
 
 
 /// Like `withUnsafeMutablePointer`, but passes pointers to `arg0` and `arg1`.
-func withUnsafeMutablePointers<A0, A1, Result>(inout arg1: A1, body: (UnsafeMutablePointer<A0>, UnsafeMutablePointer<A1>) -> Result)(inout arg0: A0) -> Result {
+func withUnsafeMutablePointers<A0, A1, Result>(inout arg1: A1, @noescape body: (UnsafeMutablePointer<A0>, UnsafeMutablePointer<A1>) -> Result)(inout arg0: A0) -> Result {
     return withUnsafeMutablePointers(&arg0, &arg1, body)
 }
 
@@ -453,31 +471,38 @@ func withUnsafeMutablePointers<A0, A1, Result>(inout arg1: A1, body: (UnsafeMuta
 /// Invokes `body` with an `UnsafePointer` to `arg` and returns the
 /// result. Useful for calling Objective-C APIs that take "in/out"
 /// parameters (and default-constructible "out" parameters) by pointer
-func withUnsafePointer<T, Result>(body: (UnsafePointer<T>) -> Result)(inout arg: T) -> Result {
+func withUnsafePointer<T, Result>(@noescape body: (UnsafePointer<T>) -> Result)(inout arg: T) -> Result {
     return withUnsafePointer(&arg, body)
 }
 
 
 /// Like `withUnsafePointer`, but passes pointers to `arg0` and `arg1`.
-func withUnsafePointers<A0, A1, Result>(inout arg1: A1, body: (UnsafePointer<A0>, UnsafePointer<A1>) -> Result)(inout arg0: A0) -> Result {
+func withUnsafePointers<A0, A1, Result>(inout arg1: A1, @noescape body: (UnsafePointer<A0>, UnsafePointer<A1>) -> Result)(inout arg0: A0) -> Result {
     return withUnsafePointers(&arg0, &arg1, body)
 }
 
 
 /// Like `withUnsafePointer`, but passes pointers to `arg0`, `arg1`,
 /// and `arg2`.
-func withUnsafePointers<A0, A1, A2, Result>(inout arg1: A1, inout arg2: A2, body: (UnsafePointer<A0>, UnsafePointer<A1>, UnsafePointer<A2>) -> Result)(inout arg0: A0) -> Result {
+func withUnsafePointers<A0, A1, A2, Result>(inout arg1: A1, inout arg2: A2, @noescape body: (UnsafePointer<A0>, UnsafePointer<A1>, UnsafePointer<A2>) -> Result)(inout arg0: A0) -> Result {
     return withUnsafePointers(&arg0, &arg1, &arg2, body)
 }
 
 
 /// Invoke `f` with a C `va_list` argument derived from `builder`.
-func withVaList<R>(f: (CVaListPointer) -> R)(builder: VaListBuilder) -> R {
+func withVaList<R>(@noescape f: (CVaListPointer) -> R)(builder: VaListBuilder) -> R {
     return withVaList(builder, f)
 }
 
 
 /// Invoke `f` with a C `va_list` argument derived from `args`.
-func withVaList<R>(f: (CVaListPointer) -> R)(args: [CVarArgType]) -> R {
+func withVaList<R>(@noescape f: (CVaListPointer) -> R)(args: [CVarArgType]) -> R {
     return withVaList(args, f)
+}
+
+/// A sequence of pairs built out of two underlying sequences, where
+/// the elements of the `i`\ th pair are the `i`\ th elements of each
+/// underlying sequence.
+func zip<S0 : SequenceType, S1 : SequenceType>(s1: S1)(s0: S0) -> Zip2<S0, S1> {
+    return zip(s0, s1)
 }
