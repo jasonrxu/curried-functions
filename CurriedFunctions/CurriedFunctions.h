@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Jason Xu. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for CurriedFunctions.
 FOUNDATION_EXPORT double CurriedFunctionsVersionNumber;

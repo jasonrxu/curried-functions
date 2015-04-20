@@ -7,13 +7,33 @@ infix operator |> {
 }
 
 
-/// Chain free functions together.
+/// Apply a closure to a value.
 /// Example:
 ///     [0, 1, 2, 3, 4]
 ///         |> filter { $0 > 1 }
-///         |> println
+///         |> map { $0 |> map }
 func |><I, O>(input: I, transform: I -> O) -> O {
     return transform(input)
+}
+
+
+/// Apply a closure to values of a tuple.
+/// Example:
+///     (start, end) |> distance
+/// is equal to
+///     distance(start, end)
+func |><I1, I2, O>(input: (I1, I2), transform: (I1, I2) -> O) -> O {
+    return transform(input.0, input.1)
+}
+
+
+/// Apply a closure to values of a tuple.
+/// Example:
+///     (collection, newElement, index) |> insert
+/// is equal to
+///     insert(collection, newElement, index)
+func |><I1, I2, I3, O>(input: (I1, I2, I3), transform: (I1, I2, I3) -> O) -> O {
+    return transform(input.0, input.1, input.2)
 }
 
 

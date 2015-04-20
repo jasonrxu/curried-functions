@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "965735441AB542AB00000790"
-               BuildableName = "CurriedFunctions.framework"
-               BlueprintName = "CurriedFunctions"
+               BuildableName = "CurriedFunctions iOS.framework"
+               BlueprintName = "CurriedFunctions iOS"
                ReferencedContainer = "container:CurriedFunctions.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -57,8 +57,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "965735441AB542AB00000790"
-            BuildableName = "CurriedFunctions.framework"
-            BlueprintName = "CurriedFunctions"
+            BuildableName = "CurriedFunctions iOS.framework"
+            BlueprintName = "CurriedFunctions iOS"
             ReferencedContainer = "container:CurriedFunctions.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -76,8 +76,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "965735441AB542AB00000790"
-            BuildableName = "CurriedFunctions.framework"
-            BlueprintName = "CurriedFunctions"
+            BuildableName = "CurriedFunctions iOS.framework"
+            BlueprintName = "CurriedFunctions iOS"
             ReferencedContainer = "container:CurriedFunctions.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -94,8 +94,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "965735441AB542AB00000790"
-            BuildableName = "CurriedFunctions.framework"
-            BlueprintName = "CurriedFunctions"
+            BuildableName = "CurriedFunctions iOS.framework"
+            BlueprintName = "CurriedFunctions iOS"
             ReferencedContainer = "container:CurriedFunctions.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
